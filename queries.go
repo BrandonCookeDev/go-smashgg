@@ -30,5 +30,15 @@ var eventQuery = `query EventQuery($slug: String){
 	event(slug: $slug){
 		id
 		name
+		slug
+		state
+		startAt
+		numEntrants
+		checkInBuffer
+		checkInDuration
+		checkInEnabled
+		isOnline
+		teamNameAllowed
+		teamManagementDeadline
 	}	
 }`

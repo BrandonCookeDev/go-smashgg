@@ -63,7 +63,7 @@ func GetTournament(authToken string, slug string) Tournament {
 	tournament := new(Tournament)
 	tournament.id = gjson.Get(string(body), "data.tournament.id").Int()
 	tournament.name = gjson.Get(string(body), "data.tournament.name").String()
-
+	
 
 	return *tournament
 }

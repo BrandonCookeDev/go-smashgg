@@ -1,10 +1,9 @@
 FROM golang:1.8
 
-WORKDIR /go/src/app
+WORKDIR /go/src/smashggo
 COPY . .
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+RUN go get -u github.com/tidwall/gjson
 
-CMD ["smashggo"]
-
+RUN go build
+CMD ["./smashggo"]

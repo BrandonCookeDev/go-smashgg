@@ -1,0 +1,8 @@
+version: "3.0"
+services:
+  smashggo:
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+    environment:
+      - SMASHGG_API_TOKEN=$SMASHGG_API_TOKEN

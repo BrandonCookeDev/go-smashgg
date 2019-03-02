@@ -23,4 +23,10 @@ func main() {
 
 	log.Println(to12Melee)
 	log.Println(ceoMelee)
+
+	to12PhaseGroup1 := GetPhaseGroup(301994)
+	to12PhaseGroup2 := GetPhaseGroup(373938)
+
+	log.Println(to12PhaseGroup1)
+	log.Println(to12PhaseGroup2)
 }

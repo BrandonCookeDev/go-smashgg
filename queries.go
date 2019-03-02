@@ -42,3 +42,15 @@ var eventQuery = `query EventQuery($slug: String){
 		teamManagementDeadline
 	}	
 }`
+
+var phaseGroupQuery = `query PhaseGroupQuery($id: Int){
+	phaseGroup(id: $id){
+		id
+		displayIdentifier
+		firstRoundTime
+		state
+		phaseId
+		waveId
+		tiebreakOrder
+	}	
+}`

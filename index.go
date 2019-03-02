@@ -6,34 +6,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+    "io/ioutil"
 	"os"
+	"github.com/tidwall/gjson"
 )
 
 var API_URL = "https://api.smash.gg/gql/alpha"
 
 func main() {
 	fmt.Printf("API URL is: %s", API_URL)
-	GetTournament("to12")
-	GetTournament("ceo2017")
-}
-
-func GetTournament(slug string) {
-	client := &http.Client{}
 
 	authToken := os.Getenv("SMASHGG_API_TOKEN")
 	log.Printf("API TOKEN set to %s", authToken)
 
+	to12 := GetTournament(authToken, "to12")
+	ceo := GetTournament(authToken, "ceo2017")
+
+	log.Println(to12)
+	log.Println(ceo)
+}
+
+func GetTournament(authToken string, slug string) Tournament {
+	client := &http.Client{}
+
 	message := map[string]interface{}{
-		"query": `query TournamentQuery($slug: String){
-			tournament(slug: $slug){
-				id
-				name
-				events{
-					id
-					name
-				}
-			}	
-		}`,
+		"query": tournamentQuery,
 		"variables": "{\"slug\": \"" + slug + "\"}",
 	}
 
@@ -51,10 +48,22 @@ func GetTournament(slug string) {
 	req.Header.Add("Authorization", "Bearer "+authToken)
 
 	resp, err := client.Do(req)
+	if err != nil{
+		log.Fatalln("Cannot perform response")
+	}
 
-	var result map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil{
+		log.Fatalln("Cannot create response body")
+	}
 
-	log.Println(result)
-	log.Println(result["data"])
+	var resultJson map[string]interface{}
+	json.Unmarshal(body, &resultJson)
+
+	tournament := new(Tournament)
+	tournament.id = gjson.Get(string(body), "data.tournament.id").Int()
+	tournament.name = gjson.Get(string(body), "data.tournament.name").String()
+
+
+	return *tournament
 }

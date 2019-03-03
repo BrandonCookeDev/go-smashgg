@@ -5,5 +5,6 @@ COPY . .
 
 RUN go get -u github.com/tidwall/gjson
 
-RUN go build
-CMD ["./smashggo"]
+RUN go install
+WORKDIR /go/src/smashggo/samples
+CMD ["go", "run", "Index.go"]

@@ -1,4 +1,4 @@
-package main
+package smashggo
 
 import (
 	"github.com/tidwall/gjson"

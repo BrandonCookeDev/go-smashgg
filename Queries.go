@@ -1,4 +1,4 @@
-package main
+package smashggo
 
 var tournamentQuery = `query TournamentQuery($slug: String){
 	tournament(slug: $slug){
@@ -61,5 +61,35 @@ var phaseGroupQuery = `query PhaseGroupQuery($id: Int){
 		phaseId
 		waveId
 		tiebreakOrder
+	}	
+}`
+
+var eventSetsQuery = `query EventSets($slug: String, $page: Int, $perPage: Int, $sortType: SetSortType, $filters: SetFilters){
+	event(slug: $slug){
+		phaseGroups{
+			paginatedSets(
+				page: $page,
+				perPage: $perPage,
+				sortType: $sortType,
+				filters: $filters
+			){
+				pageInfo{
+					totalPages
+				}
+				nodes{
+					id
+					eventId
+					phaseGroupId
+					displayScore
+					fullRoundText
+					round
+					startedAt
+					completedAt
+					winnerId
+					totalGames
+					state
+				}
+			}
+		}
 	}	
 }`

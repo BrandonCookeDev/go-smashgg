@@ -1,6 +1,9 @@
-package main
+package smashggo
 
 import (
+	"log"
+	"strconv"
+
 	"github.com/tidwall/gjson"
 )
 
@@ -19,8 +22,12 @@ type Event struct {
 	teamManagementDeadline int64
 }
 
+func GetEventSlug(tournamentSlug string, eventSlug string) string {
+	return `tournament/` + tournamentSlug + `/event/` + eventSlug
+}
+
 func GetEvent(tournamentSlug string, eventSlug string) Event {
-	params := `{"slug":"tournament/` + tournamentSlug + `/event/` + eventSlug + `"}`
+	params := `{"slug":` + GetEventSlug(tournamentSlug, eventSlug) + `}`
 	data := query(eventQuery, params)
 	return ParseEvent(data)
 }
@@ -40,4 +47,64 @@ func ParseEvent(data string) Event {
 	event.teamNameAllowed = gjson.Get(data, "data.event.teamNameAllowed").Bool()
 	event.teamManagementDeadline = gjson.Get(data, "data.event.teamManagementDeadline").Int()
 	return *event
+}
+
+func GetEventSets(tournamentSlug string, eventSlug string, perPage int) []GGSet {
+	var sets []GGSet
+
+	page := 1
+	params := `{
+		"slug": "` + GetEventSlug(tournamentSlug, eventSlug) + `",
+		"page": ` + strconv.Itoa(page) + `,
+		"perPage": ` + strconv.Itoa(perPage) + `,
+		"sortBy": null,
+		"filters": null
+	}`
+	data := query(eventSetsQuery, params)
+	phaseGroups := gjson.Get(data, "data.event.phaseGroups").Array()
+	//log.Println(phaseGroups)
+
+	var totalPages int64
+
+	for _, pg := range phaseGroups {
+		if totalPages == 0 {
+			totalPages = gjson.Get(pg.String(), "paginatedSets.pageInfo.totalPages").Int()
+		}
+
+		pgSets := gjson.Get(pg.String(), "paginatedSets.nodes").Array()
+		for _, set := range pgSets {
+			ggSet := ParseGGSet(set.String())
+			sets = append(sets, ggSet)
+		}
+	}
+
+	//log.Printf("Got 1/%s Pages", string(totalPages))
+	for i := 1; int64(i) <= totalPages; i++ {
+		log.Printf("Got %d/%d Pages", i, totalPages)
+		params = `{
+			"slug": "` + GetEventSlug(tournamentSlug, eventSlug) + `",
+			"page": ` + strconv.Itoa(page) + `,
+			"perPage": ` + strconv.Itoa(perPage) + `,
+			"sortBy": null,
+			"filters": null
+		}`
+
+		data = query(eventSetsQuery, params)
+		phaseGroups = gjson.Get(data, "data.event.phaseGroups").Array()
+
+		for _, pg := range phaseGroups {
+			if totalPages == 0 {
+				totalPages = gjson.Get(pg.String(), "paginatedSets.pageInfo.totalPages").Int()
+			}
+
+			pgSets := gjson.Get(pg.String(), "paginatedSets.nodes").Array()
+			for _, set := range pgSets {
+				ggSet := ParseGGSet(set.String())
+				sets = append(sets, ggSet)
+			}
+		}
+	}
+
+	//log.Println(sets)
+	return sets
 }

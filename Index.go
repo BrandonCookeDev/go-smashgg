@@ -29,4 +29,10 @@ func main() {
 
 	log.Println(to12PhaseGroup1)
 	log.Println(to12PhaseGroup2)
+
+	to12Phase1 := GetPhase(100046)
+	to12Phase2 := GetPhase(132397)
+
+	log.Println(to12Phase1)
+	log.Println(to12Phase2)
 }

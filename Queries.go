@@ -1,4 +1,4 @@
-package smashggo
+package gosmashgg
 
 var tournamentQuery = `query TournamentQuery($slug: String){
 	tournament(slug: $slug){

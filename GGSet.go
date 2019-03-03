@@ -1,4 +1,4 @@
-package smashggo
+package gosmashgg
 
 import (
 	"log"

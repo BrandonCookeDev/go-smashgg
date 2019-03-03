@@ -1,4 +1,4 @@
-package smashggo
+package gosmashgg
 
 import (
 	"log"
@@ -62,7 +62,6 @@ func GetEventSets(tournamentSlug string, eventSlug string, perPage int) []GGSet 
 	}`
 	data := query(eventSetsQuery, params)
 	phaseGroups := gjson.Get(data, "data.event.phaseGroups").Array()
-	//log.Println(phaseGroups)
 
 	var totalPages int64
 
@@ -78,7 +77,6 @@ func GetEventSets(tournamentSlug string, eventSlug string, perPage int) []GGSet 
 		}
 	}
 
-	//log.Printf("Got 1/%s Pages", string(totalPages))
 	for i := 1; int64(i) <= totalPages; i++ {
 		log.Printf("Got %d/%d Pages", i, totalPages)
 		params = `{

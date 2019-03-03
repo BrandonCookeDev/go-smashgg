@@ -1,6 +1,7 @@
 package smashggo
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/tidwall/gjson"
@@ -30,4 +31,51 @@ func ParsePhaseGroup(data string) PhaseGroup {
 	phaseGroup.phaseId = gjson.Get(data, "data.phaseGroup.phaseId").Int()
 	phaseGroup.waveId = gjson.Get(data, "data.phaseGroup.waveId").Int()
 	return *phaseGroup
+}
+
+func GetPhaseGroupSets(id int, perPage int) []GGSet {
+	var sets []GGSet
+	var totalPages int64
+
+	page := 1
+	params := `{
+		"id": ` + strconv.Itoa(id) + `,
+		"page": ` + strconv.Itoa(page) + `,
+		"perPage": ` + strconv.Itoa(perPage) + `,
+		"sortType": null,
+		"filters": null
+	}`
+
+	data := query(phaseGroupSetsQuery, params)
+	totalPages = gjson.Get(data, "phaseGroup.paginatedSets.pageInfo.totalPages").Int()
+	pgSets := gjson.Get(data, "phaseGroup.paginatedSets.nodes").Array()
+
+	for _, set := range pgSets {
+		ggSet := ParseGGSet(set.String())
+		sets = append(sets, ggSet)
+	}
+
+	//log.Printf("Got 1/%s Pages", string(totalPages))
+	for i := 1; int64(i) <= totalPages; i++ {
+		log.Printf("Got %d/%d Pages", i, totalPages)
+		params = `{
+			"id": ` + strconv.Itoa(id) + `,
+			"page": ` + strconv.Itoa(page) + `,
+			"perPage": ` + strconv.Itoa(perPage) + `,
+			"sortType": null,
+			"filters": null
+		}`
+
+		data = query(phaseGroupSetsQuery, params)
+		totalPages = gjson.Get(data, "phaseGroup.paginatedSets.pageInfo.totalPages").Int()
+		pgSets = gjson.Get(data, "phaseGroup.paginatedSets.nodes").Array()
+
+		for _, set := range pgSets {
+			ggSet := ParseGGSet(set.String())
+			sets = append(sets, ggSet)
+		}
+	}
+
+	//log.Println(sets)
+	return sets
 }

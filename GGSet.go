@@ -1,6 +1,14 @@
 package smashggo
 
-import "github.com/tidwall/gjson"
+import (
+	"log"
+	"regexp"
+	"strconv"
+
+	"github.com/tidwall/gjson"
+)
+
+var displayScoreRegex, _ = regexp.Compile("([\\S\\s]*) ([0-9]{1,3}) - ([\\S\\s]*) ([0-9]{1,3})")
 
 type GGSet struct {
 	id            int64
@@ -14,6 +22,10 @@ type GGSet struct {
 	winnerId      int64
 	totalGames    int64
 	state         int64
+	player1       string
+	player2       string
+	player1Score  int
+	player2Score  int
 }
 
 func ParseGGSet(data string) GGSet {
@@ -29,5 +41,20 @@ func ParseGGSet(data string) GGSet {
 	set.winnerId = gjson.Get(data, "winnerId").Int()
 	set.totalGames = gjson.Get(data, "totalGames").Int()
 	set.state = gjson.Get(data, "state").Int()
+	parsed := set.ParseDisplayScore()
+	if len(parsed) > 0 {
+		set.player1 = parsed[1]
+		set.player1Score, _ = strconv.Atoi(parsed[2])
+		set.player2 = parsed[3]
+		set.player2Score, _ = strconv.Atoi(parsed[4])
+	}
 	return *set
+}
+
+func (set *GGSet) ParseDisplayScore() []string {
+	return displayScoreRegex.FindStringSubmatch(set.displayScore)
+}
+
+func (set *GGSet) Print() {
+	log.Printf("%s: %s %d - %d %s", set.fullRoundText, set.player1, set.player1Score, set.player2Score, set.player2)
 }

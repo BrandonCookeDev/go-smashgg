@@ -43,6 +43,15 @@ var eventQuery = `query EventQuery($slug: String){
 	}	
 }`
 
+var phaseQuery = `query PhaseQuery($id: Int){
+	phase(id: $id){
+		id
+		name
+		numSeeds
+		groupCount
+	}	
+}`
+
 var phaseGroupQuery = `query PhaseGroupQuery($id: Int){
 	phaseGroup(id: $id){
 		id
